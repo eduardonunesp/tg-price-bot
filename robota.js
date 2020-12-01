@@ -1,4 +1,8 @@
 const { Telegraf } = require('telegraf')
+const { Exchange } = require('./exchange')
+const Alerts = require('./alerts')
+
+const CHECK_TIMER = 3000
 
 const MIDDLEWARES = [
   require('./middlewares/session'),
@@ -14,17 +18,57 @@ const COMMANDS = [
 
 class Robota {
   constructor() {
+    // SESSION ID ${ctx.from.id}:${ctx.chat.id}
+    this.ctxs = {}
+    this.alerts = new Alerts()
     this.bot = new Telegraf(process.env.BOT_TOKEN)
     this.bot.use(...MIDDLEWARES)
+    this.bot.use((ctx, next) => {
+      this.ctxs[ctx.from.id] = ctx
+      next()
+    })
+
+    this.timerHandler = null
 
     this.bot.catch((err, ctx) => {
       console.error(`Ooops, encountered an error for ${ctx.updateType}`, err)
     })
 
+    process.on('SIGINT', () => {
+      clearInterval(this.timerHandler)
+      process.exit(0)
+    })
+
     this.buildCommands()
+    this.checkTickers()
   }
 
-  checkTickers() {}
+  checkTickers() {
+    this.timerHandler = setInterval(async () => {
+      const value = await Exchange.AVG()
+      const userAlerts = await this.alerts.getAlerts()
+
+      for (const userAlert of userAlerts) {
+        for (const alert of userAlert.alerts) {
+          if (+alert.value <= value) {
+            const ctx = this.ctxs[userAlert.id]
+            if (ctx) {
+              ctx.session.alerts = []
+              ctx.reply(JSON.stringify(alert))
+            }
+          }
+        }
+      }
+
+      // console.log(value, alerts)
+      // console.log('CHECK COIN PRINCE', value)
+      // console.log()
+      // this.
+      // for (const [key, ctx] of Object.entries(this.ctxs)) {
+      // ctx.reply('OK')
+      // }
+    }, CHECK_TIMER)
+  }
 
   buildCommands() {
     COMMANDS.forEach((command) => {
