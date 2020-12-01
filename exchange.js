@@ -1,16 +1,17 @@
+const EX_BITCOINTRADE = 'bitcointrade'
+const EX_MERCADOBITCOIN = 'mercadobitcoin'
+
 const EXCHANGES = {
-  'mercadobitcoin': new (require('./exchanges/mercadobitcoin')),
-  'bitcointrade': new (require('./exchanges/bitcointrade')),
+  [EX_MERCADOBITCOIN]: new (require('./exchanges/mercadobitcoin'))(),
+  [EX_BITCOINTRADE]: new (require('./exchanges/bitcointrade'))(),
 }
 
 class Exchange {
   static Create(name) {
     const exchangeSelected = EXCHANGES[name]
-
     if (!exchangeSelected) {
       throw Error(`Invalid exchange for ${name}`)
     }
-
     return new Exchange(exchangeSelected)
   }
 
@@ -33,4 +34,8 @@ class Exchange {
   }
 }
 
-module.exports = Exchange
+module.exports = {
+  Exchange,
+  EX_BITCOINTRADE,
+  EX_MERCADOBITCOIN,
+}

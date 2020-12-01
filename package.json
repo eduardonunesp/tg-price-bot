@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "start": "node index.js",
     "test": "node ./node_modules/mocha/bin/mocha **/*.test.js"
   },
   "devDependencies": {
@@ -12,6 +13,8 @@
   },
   "dependencies": {
     "axios": "^0.21.0",
-    "telegraf": "^3.38.0"
+    "sqlite3": "^5.0.0",
+    "telegraf": "^3.38.0",
+    "telegraf-session-sqlite": "^1.0.6"
   }
 }
