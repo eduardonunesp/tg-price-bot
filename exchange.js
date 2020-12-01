@@ -1,9 +1,6 @@
-const BitcointTrade = require('./exchanges/bitcointrade')
-const MercadoBitcoin = require('./exchanges/mercadobitcoin')
-
 const EXCHANGES = {
-  'mercadobitcoin': new MercadoBitcoin(),
-  'bitcointrade': new BitcointTrade()
+  'mercadobitcoin': new (require('./exchanges/mercadobitcoin')),
+  'bitcointrade': new (require('./exchanges/bitcointrade')),
 }
 
 class Exchange {
